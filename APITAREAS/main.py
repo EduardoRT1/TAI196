@@ -24,3 +24,13 @@ def main():
 def ConsultarTodos():
     return {"Todas las tareas registradas": tareas}
 
+#endpoint para agregar tarea
+@app.post("/tareas/", tags=["Operaciones CRUD"])
+def AgregarTarea(tarea: dict):  
+    for tar in tareas:
+        if tar["id"] == tarea.get("id"):
+            raise HTTPException(status_code=400, detail="La tarea ya existe")
+    
+    tareas.append(tarea)  
+    return tarea
+
