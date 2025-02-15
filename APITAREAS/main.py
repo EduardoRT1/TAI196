@@ -34,3 +34,12 @@ def AgregarTarea(tarea: dict):
     tareas.append(tarea)  
     return tarea
 
+#endpoint para encontrar una tarea en especifico por su id
+@app.get("/tareas/{id}", tags=["Operaciones CRUD"])
+def ConsultarTarea(id: int):
+    for tar in tareas:
+        if tar["id"] == id:
+            return {"Tarea encontrada": tar}
+    raise HTTPException(status_code=404, detail="Tarea no encontrada")
+
+
