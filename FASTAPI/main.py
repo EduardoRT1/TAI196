@@ -18,21 +18,22 @@ usuarios = [
 def main():
     return {"Hola FastAPI": "Eduardo Rojas Trejo"}
 
-#endpoint para consultar un usuario por su id
+#endpoint para consultar todos los usuarios
 @app.get("/usuarios", tags=["Operaciones CRUD"])
 def ConsultarTodos():
     return {"Todos los usuarios registrados": usuarios}
 
-#endpoint para consultar un usuario por su id
+#endpoint para agregar
+# un usuario por su id
 @app.post("/usuarios/", tags=["Operaciones CRUD"])
-def AgregarUsuario(usuario: dict):  # Usa el modelo Usuario en lugar de dict
+def AgregarUsuario(usuario: dict):  
     for usr in usuarios:
         if usr["id"] == usuario.get("id"):
             raise HTTPException(status_code=400, detail="El usuario ya existe")
     
     usuarios.append(usuario)  
     return usuario
-
+#endpoint para actualizar un usuario por su id
 @app.put("/usuarios/{id}", tags=["Operaciones CRUD"])
 def ActualizarUsuario(id: int, usuario: dict):
     for usr in usuarios:
@@ -42,7 +43,7 @@ def ActualizarUsuario(id: int, usuario: dict):
     raise HTTPException(status_code=404, detail="Usuario no encontrado")
     usuarios.append(usuario)
     return usuario
-
+#endpoint para eliminar un usuario por su id
 @app.delete("/usuarios/{id}", tags=["Operaciones CRUD"])
 def EliminarUsuario(id: int):
     for usr in usuarios:

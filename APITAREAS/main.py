@@ -42,4 +42,12 @@ def ConsultarTarea(id: int):
             return {"Tarea encontrada": tar}
     raise HTTPException(status_code=404, detail="Tarea no encontrada")
 
+#endpoint para actualizar una tarea
+@app.put("/tareas/{id}", tags=["Operaciones CRUD"])
+def ActualizarTarea(id: int, tarea: dict):
+    for tar in tareas:
+        if tar["id"] == id:
+            tar.update(tarea)
+            return {"Tarea actualizada": tar}
+    raise HTTPException(status_code=404, detail="Tarea no encontrada")
 
