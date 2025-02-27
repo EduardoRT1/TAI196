@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from typing import List, Optional
-from pydantic import BaseModel 
+from modelsPydantic import modelUsuario
 
 
 app = FastAPI(
@@ -9,11 +9,6 @@ app = FastAPI(
     version="1.0.1"
 )
 
-class modelUsuario(BaseModel):
-    id: int
-    nombre: str
-    edad: int
-    correo: str
 
 usuarios = [
     {"id": 1, "nombre": "Eduardo", "edad": 21, "correo": "lalojr@example.com"},
@@ -42,11 +37,11 @@ def AgregarUsuario(usuario: modelUsuario):
     return usuario
 
 #endpoint para actualizar un usuario por su id
-@app.put("/usuarios/{id}", response_model=modelUsuario,tags=["Operaciones CRUD"])
+@app.put("/usuarios/{id}", response_model=modelUsuario, tags=["Operaciones CRUD"])
 def ActualizarUsuario(id: int, usuario_actualizado: modelUsuario):
-    for index in usuarios:
+    for index, usr in enumerate(usuarios):
         if usr["id"] == id:
-            usuarios[index]=usuario_actualizado.model_dump()
+            usuarios[index] = usuario_actualizado.model_dump()
             return usuarios[index]
     raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
@@ -58,3 +53,4 @@ def EliminarUsuario(id: int):
             usuarios.remove(usr)
             return {"Usuario eliminado": usr}
     raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
