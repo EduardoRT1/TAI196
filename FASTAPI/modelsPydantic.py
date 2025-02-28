@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 
 class modelUsuario(BaseModel):
@@ -8,3 +8,6 @@ class modelUsuario(BaseModel):
     correo: str = Field(..., pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", description="Correo electronico", examples={"lalo@gmail.com"})
     
     
+class modelAuth(BaseModel):
+    correo:EmailStr   
+    passw: str = Field(..., min_length=8, strip_whitespace=True, description="Contraseña minimo 8 caracteres")

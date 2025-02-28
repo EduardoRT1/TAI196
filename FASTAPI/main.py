@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from typing import List, Optional
-from modelsPydantic import modelUsuario
+from modelsPydantic import modelUsuario, modelAuth
+from tokenGen import createToken
+from fastapi.responses import JSONResponse
 
 
 app = FastAPI(
@@ -20,6 +22,18 @@ usuarios = [
 @app.get("/", tags=["Inicio"])
 def main():
     return {"Hola FastAPI": "Eduardo Rojas Trejo"}
+
+#Endpoint para generar un token de autentificacion
+@app.post('/auth', tags=['Autentificacion'])
+def login(autorizado:modelAuth):
+    if autorizado.correo == "lu@xd.com" and autorizado.passw == "12345678":
+        token:str = createToken(autorizado.model_dump())
+        print(token)
+        return{"Aviso":"Token generado"}
+    else:
+        return {"Aviso":"Usuario o contraseña incorrectos"}
+
+
 
 #endpoint para consultar todos los usuarios
 @app.get("/usuarios", response_model=List[modelUsuario], tags=["Operaciones CRUD"])
