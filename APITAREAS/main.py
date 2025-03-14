@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from typing import List
 from typing import Optional
 
+#py -m venv "nombre del entorno" 
+
 app = FastAPI(
     title="Administrador de tareas",
     description="Eduardo Rojas Trejo",
