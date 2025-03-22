@@ -5,6 +5,9 @@ from tokenGen import createToken
 from fastapi.responses import JSONResponse
 from middlewares import BearerJWT
 
+from DB.conexion import Session, engine, Base
+from models.modelsDB import User
+
 
 app = FastAPI(
     title="Mi primera API-196",
@@ -12,6 +15,7 @@ app = FastAPI(
     version="1.0.1"
 )
 
+Base.metadata.create_all(bind=engine)
 
 usuarios = [
     {"id": 1, "nombre": "Eduardo", "edad": 21, "correo": "lalojr@example.com"},
@@ -41,15 +45,21 @@ def login(autorizado:modelAuth):
 def ConsultarTodos():
     return usuarios
 
-#endpoint para agregar un usuario por su id
-@app.post("/usuarios/", response_model=modelUsuario,tags=["Operaciones CRUD"])
-def AgregarUsuario(usuario: modelUsuario):  
-    for usr in usuarios:
-        if usr["id"] == usuario.id:
-            raise HTTPException(status_code=400, detail="El usuario ya existe")
+#Endpoint para agregar usuarios
+@app.post("/usuarios/", response_model = modelUsuario, tags=["Operaciones CRUD"])
+def AgregarUsuario(usuarioNuevo: modelUsuario):
+    db = Session()
+    try:
+        db.add(User(**usuarioNuevo.model_dump()))
+        db.commit()
+        return JSONResponse(status_code=201, content={"mensaje": "Usuario guardado", "usuario": usuarioNuevo.model_dump()})
     
-    usuarios.append(usuario)  
-    return usuario
+    except Exception as e:
+        db.rollback()
+        return JSONResponse(status_code=201, content={"mensaje": "No se guardó", "Excepción": str(e)})
+    
+    finally:
+        db.close()
 
 #endpoint para actualizar un usuario por su id
 @app.put("/usuarios/{id}", response_model=modelUsuario, tags=["Operaciones CRUD"])
