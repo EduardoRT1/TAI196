@@ -3,6 +3,7 @@ from typing import List, Optional
 from modelsPydantic import modelUsuario, modelAuth
 from tokenGen import createToken
 from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from middlewares import BearerJWT
 
 from DB.conexion import Session, engine, Base
@@ -28,23 +29,34 @@ usuarios = [
 def main():
     return {"Hola FastAPI": "Eduardo Rojas Trejo"}
 
-#Endpoint para generar un token de autentificacion
-@app.post('/auth', tags=['Autentificacion'])
-def login(autorizado:modelAuth):
-    if autorizado.correo == "lu@xd.com" and autorizado.passw == "12345678":
-        token:str = createToken(autorizado.model_dump())
-        print(token)
-        return JSONResponse(content={"token": token})
-    else:
-        return {"Aviso":"Usuario o contraseña incorrectos"}
 
-
-
+#dependencies=[Depends(BearerJWT())],
 #endpoint para consultar todos los usuarios
-@app.get("/usuarios", dependencies=[Depends(BearerJWT())], response_model=List[modelUsuario], tags=["Operaciones CRUD"])
+@app.get("/usuarios", tags=["Operaciones CRUD"])
 def ConsultarTodos():
-    return usuarios
-
+    db = Session()
+    try:
+        consulta = db.query(User).all()
+        return JSONResponse(content=jsonable_encoder(consulta))
+    except Exception as x:
+        return JSONResponse(status_code=500, content={"mensaje": "No fue posible", "Excepción": str(x)})       
+    finally:
+        db.close()
+        
+#endpoint consulta por id
+@app.get("/usuarios/{id}", tags=["Operaciones CRUD"])
+def ConsultarUno(id: int):
+    db = Session()
+    try:
+        consulta = db.query(User).filter(User.id == id).first()
+        if not consulta:
+            return JSONResponse(status_code=404, content={"mensaje": "Usuario no encontrado"})
+        return JSONResponse(content=jsonable_encoder(consulta))
+    except Exception as x:
+        return JSONResponse(status_code=500, content={"mensaje": "No fue posible", "Excepción": str(x)})
+    finally:
+        db.close()
+        
 #Endpoint para agregar usuarios
 @app.post("/usuarios/", response_model = modelUsuario, tags=["Operaciones CRUD"])
 def AgregarUsuario(usuarioNuevo: modelUsuario):
@@ -61,7 +73,7 @@ def AgregarUsuario(usuarioNuevo: modelUsuario):
     finally:
         db.close()
 
-#endpoint para actualizar un usuario por su id
+""" #endpoint para actualizar un usuario por su id
 @app.put("/usuarios/{id}", response_model=modelUsuario, tags=["Operaciones CRUD"])
 def ActualizarUsuario(id: int, usuario_actualizado: modelUsuario):
     for index, usr in enumerate(usuarios):
@@ -77,5 +89,16 @@ def EliminarUsuario(id: int):
         if usr["id"] == id:
             usuarios.remove(usr)
             return {"Usuario eliminado": usr}
-    raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    raise HTTPException(status_code=404, detail="Usuario no encontrado") """
+
+
+#Endpoint para generar un token de autentificacion
+@app.post('/auth', tags=['Autentificacion'])
+def login(autorizado:modelAuth):
+    if autorizado.correo == "lu@xd.com" and autorizado.passw == "12345678":
+        token:str = createToken(autorizado.model_dump())
+        print(token)
+        return JSONResponse(content={"token": token})
+    else:
+        return {"Aviso":"Usuario o contraseña incorrectos"}
 
