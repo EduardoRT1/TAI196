@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulario de Usuario</title>
+</head>
+<body>
+    <h1>Crear Usuario</h1>
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
+            {{ message }}
+          </p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('formulario') }}">
+        <label for="name">Nombre:</label>
+        <input type="text" name="name" required><br><br>
+        <label for="age">Edad:</label>
+        <input type="number" name="age" required><br><br>
+        <label for="email">Correo:</label>
+        <input type="email" name="email" required><br><br>
+        <button type="submit">Crear Usuario</button>
+    </form>
+    <br>
+    <a href="{{ url_for('consulta') }}">Ver Usuarios</a>
+</body>
+</html>

@@ -17,3 +17,5 @@ app.include_router(routerAuth)
 @app.get("/", tags=["Inicio"])
 def main():
     return {"Hola FastAPI": "Eduardo Rojas Trejo"}
+
+
